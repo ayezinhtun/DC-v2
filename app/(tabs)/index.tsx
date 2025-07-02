@@ -113,6 +113,11 @@ export default function NewEntryScreen() {
 
       if (error) throw error;
 
+      if (showCamera) {
+  setShowCamera(false);
+  await new Promise(resolve => setTimeout(resolve, 300)); // Wait for modal close animation
+}
+
       console.log('Submission success, showing alert...');
 
       Alert.alert(
