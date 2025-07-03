@@ -4,11 +4,10 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-  "dev": "EXPO_NO_TELEMETRY=1 npx expo start",
-  "build": "expo export --platform web",
-  "lint": "expo lint"
-},
-
+    "dev": "EXPO_NO_TELEMETRY=1 npx expo start",
+    "build": "expo export --platform web",
+    "lint": "expo lint"
+  },
   "dependencies": {
     "@expo/vector-icons": "^14.0.0",
     "@lucide/lab": "^0.1.2",
@@ -19,11 +18,13 @@
     "expo-blur": "~13.0.2",
     "expo-camera": "~15.0.13",
     "expo-constants": "~16.0.2",
+    "expo-file-system": "~17.0.1",
     "expo-font": "~11.10.0",
     "expo-haptics": "~13.0.1",
     "expo-linear-gradient": "~13.0.2",
     "expo-linking": "~6.3.1",
     "expo-router": "~3.5.18",
+    "expo-sharing": "~12.0.1",
     "expo-splash-screen": "~0.27.5",
     "expo-status-bar": "~1.12.1",
     "expo-symbols": "^0.4.5",
@@ -40,9 +41,7 @@
     "react-native-svg": "15.2.0",
     "react-native-url-polyfill": "^2.0.0",
     "react-native-web": "^0.19.10",
-    "react-native-webview": "13.8.6",
-    "expo-sharing": "~12.0.1",
-    "expo-file-system": "~17.0.1"
+    "react-native-webview": "13.8.6"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

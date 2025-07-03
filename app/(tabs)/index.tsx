@@ -60,33 +60,73 @@ export default function NewEntryScreen() {
     }
   };
 
-  const uploadPhoto = async (uri: string): Promise<string | null> => {
-    try {
+
+ const uploadPhoto = async (uri: string): Promise<string | undefined> => {
+  try {
+    let blob: Blob;
+    let fileExt = 'jpg'; // default
+
+    if (uri.startsWith('data:image')) {
+      // Base64 handling
+      const matches = uri.match(/^data:(image\/[a-zA-Z]+);base64,(.+)$/);
+      if (!matches || matches.length !== 3) throw new Error('Invalid base64 image');
+
+      const mimeType = matches[1];
+      const base64Data = matches[2];
+      fileExt = mimeType.split('/')[1];
+
+      const byteCharacters = atob(base64Data);
+      const byteArrays = [];
+
+      for (let i = 0; i < byteCharacters.length; i += 512) {
+        const slice = byteCharacters.slice(i, i + 512);
+        const byteNumbers = new Array(slice.length);
+        for (let j = 0; j < slice.length; j++) {
+          byteNumbers[j] = slice.charCodeAt(j);
+        }
+        byteArrays.push(new Uint8Array(byteNumbers));
+      }
+
+      blob = new Blob(byteArrays, { type: mimeType });
+    } else {
+      // File URI (e.g., file:///...) handling
       const response = await fetch(uri);
-      const blob = await response.blob();
-      
-      const fileExt = uri.split('.').pop() || 'jpg';
-      const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
-      
-      const { data, error } = await supabase.storage
-        .from('visitor-photos')
-        .upload(fileName, blob, {
-          cacheControl: '3600',
-          upsert: false,
-        });
-
-      if (error) throw error;
-
-      const { data: publicUrlData } = supabase.storage
-        .from('visitor-photos')
-        .getPublicUrl(fileName);
-
-      return publicUrlData.publicUrl;
-    } catch (error) {
-      console.error('Error uploading photo:', error);
-      return null;
+      blob = await response.blob();
+      const parts = uri.split('.');
+      fileExt = parts[parts.length - 1];
     }
-  };
+
+    const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+    const { data, error } = await supabase.storage
+      .from('visitor-photos')
+      .upload(fileName, blob, {
+        cacheControl: '3600',
+        upsert: false,
+      });
+
+    if (error) {
+      console.error('❌ Upload error:', error);
+      return undefined;
+    }
+
+    const { data: publicUrlData, error: urlError } = supabase.storage
+      .from('visitor-photos')
+      .getPublicUrl(fileName);
+
+    if (urlError || !publicUrlData?.publicUrl) {
+      console.error('❌ Public URL error:', urlError);
+      return undefined;
+    }
+
+    return publicUrlData.publicUrl;
+  } catch (err) {
+    console.error('❌ uploadPhoto failed:', err);
+    return undefined;
+  }
+};
+
+
 
   const handleSubmit = async () => {
     if (!formData.name || !formData.nrc_no || !formData.phone_number) {
@@ -98,27 +138,25 @@ export default function NewEntryScreen() {
     try {
       let photoUrl: string | undefined;
       
-      if (photoUri) {
-        photoUrl = await uploadPhoto(photoUri) || undefined;
-      }
+     
+   if (photoUri) {
+  const uploadedUrl = await uploadPhoto(photoUri);  // Make sure this is awaited
+  if (!uploadedUrl) {
+    console.warn('Photo upload failed');
+  }
+  photoUrl = uploadedUrl || undefined;
+}
+
 
       const visitorData: CreateVisitorData = {
         ...formData,
         photo_url: photoUrl,
       };
-
       const { error } = await supabase
         .from('dc_visitors')
         .insert([visitorData]);
 
       if (error) throw error;
-
-      if (showCamera) {
-  setShowCamera(false);
-  await new Promise(resolve => setTimeout(resolve, 300)); // Wait for modal close animation
-}
-
-      console.log('Submission success, showing alert...');
 
       Alert.alert(
         'Success',
@@ -144,8 +182,6 @@ export default function NewEntryScreen() {
           },
         ]
       );
-      
-      
     } catch (error) {
       console.error('Error submitting form:', error);
       Alert.alert('Error', 'Failed to record visitor entry. Please try again.');
