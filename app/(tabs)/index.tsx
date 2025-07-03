@@ -158,30 +158,21 @@ export default function NewEntryScreen() {
 
       if (error) throw error;
 
-      Alert.alert(
-        'Success',
-        'Visitor entry recorded successfully!',
-        [
-          {
-            text: 'OK',
-            onPress: () => {
-              // Reset form
-              setFormData({
-                name: '',
-                nrc_no: '',
-                phone_number: '',
-                company_name: '',
-                visit_purpose: '',
-                employee_card_number: '',
-                access_container_no: '',
-                access_rack_no: '',
-                inventory_list: '',
-              });
-              setPhotoUri(null);
-            },
-          },
-        ]
-      );
+     alert('Visitor entry recorded successfully!');
+
+setFormData({
+  name: '',
+  nrc_no: '',
+  phone_number: '',
+  company_name: '',
+  visit_purpose: '',
+  employee_card_number: '',
+  access_container_no: '',
+  access_rack_no: '',
+  inventory_list: '',
+});
+setPhotoUri(null);
+
     } catch (error) {
       console.error('Error submitting form:', error);
       Alert.alert('Error', 'Failed to record visitor entry. Please try again.');
