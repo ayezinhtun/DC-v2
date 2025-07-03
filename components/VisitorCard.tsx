@@ -43,20 +43,19 @@ export default function VisitorCard({
     return visitor.out_time ? 'Checked Out' : 'In Site';
   };
 
-  const handleDelete = () => {
-    Alert.alert(
-      'Delete Visitor Record',
-      `Are you sure you want to delete ${visitor.name}'s record? This action cannot be undone.`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: () => onDelete(visitor.id),
-        },
-      ]
-    );
-  };
+  const handleDelete = async () => {
+  alert(`Deleting Your record...`);
+
+  try {
+    await onDelete(visitor.id); // wait for the async operation
+    alert(`Your record has been deleted successfully.`);
+  } catch (error) {
+    alert('Failed to delete the visitor.');
+    console.error(error);
+  }
+};
+
+
 
   return (
     <View style={styles.visitorCard}>
@@ -136,6 +135,8 @@ export default function VisitorCard({
           <Trash2 size={18} color="#ef4444" />
           <Text style={[styles.actionButtonText, styles.deleteButtonText]}>Delete</Text>
         </TouchableOpacity>
+
+        
       </View>
     </View>
   );
