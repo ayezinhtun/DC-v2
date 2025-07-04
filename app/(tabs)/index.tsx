@@ -12,12 +12,12 @@ import {
   Dimensions,
   Platform,
 } from 'react-native';
+
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { Camera, Upload, X, CircleCheck as CheckCircle } from 'lucide-react-native';
 import { supabase, CreateVisitorData } from '@/lib/supabase';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
-
 export default function NewEntryScreen() {
   const [formData, setFormData] = useState<CreateVisitorData>({
     name: '',
